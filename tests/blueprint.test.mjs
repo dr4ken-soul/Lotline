@@ -22,7 +22,12 @@ test("blueprint has current catalog metadata and canonical sections", () => {
 });
 
 test("blueprint includes a trigger, flow control, non-core plugin, and human pause", () => {
-  const types = flow.tasks.map((task) => task.type);
+  const taskTypes = (tasks) => tasks.flatMap((task) => [
+    task.type,
+    ...taskTypes(task.then ?? []),
+    ...taskTypes(task.else ?? []),
+  ]);
+  const types = taskTypes(flow.tasks);
   assert.ok(flow.triggers.some((trigger) => trigger.type === "io.kestra.plugin.core.trigger.Webhook"));
   assert.ok(types.includes("io.kestra.plugin.core.flow.If"));
   assert.ok(types.includes("io.kestra.plugin.openai.ChatCompletion"));

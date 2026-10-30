@@ -50,7 +50,10 @@ export function DemoApp({ evaluation }: { evaluation: Evaluation }) {
     }
   }, []);
 
-  useEffect(() => { void refreshHealth(); }, [refreshHealth]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void refreshHealth(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [refreshHealth]);
 
   useEffect(() => {
     if (!run || run.mode !== "kestra" || !run.executionId || !run.sessionToken || terminalStates.has(state) || state === "PAUSED") return;

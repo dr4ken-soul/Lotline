@@ -264,7 +264,6 @@ function templateDraft(
     ? applicableReadings.reduce((highest, reading) => Math.max(highest, reading.normalizedCelsius), -Infinity)
     : null;
   const candidateNames = candidates.filter((lot) => lot.scope === "CANDIDATE").map((lot) => lot.lotId);
-  const interval = excursions[0];
   const intervalText = excursions.length
     ? excursions.map((item) => `${item.kind} ${new Date(item.startAt).toISOString().slice(11, 16)}–${new Date(item.endAt).toISOString().slice(11, 16)} UTC`).join("; ")
     : readings.some((reading) => !reading.policyApplicable)
@@ -325,7 +324,7 @@ export function evaluateEvent(input: ColdChainEvent): Evaluation {
     const inPolicyPeriod = time >= Date.parse(policy.effectiveFrom) && time <= Date.parse(policy.effectiveTo);
     if (!inPolicyPeriod) warnings.push(`Reading ${reading.readingId} falls outside policy ${policy.policyId}'s effective period.`);
     const policyApplicable = inPolicyPeriod;
-    const band = !policyApplicable
+    const band: NormalizedReading["band"] = !policyApplicable
       ? "OUTSIDE_POLICY_PERIOD"
       : normalizedCelsius < policy.lowerBound
         ? "LOW"

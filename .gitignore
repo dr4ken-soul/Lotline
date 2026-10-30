@@ -3,6 +3,7 @@ node_modules/
 out/
 coverage/
 .turbo/
+*.tsbuildinfo
 *.log
 .DS_Store
 Thumbs.db
