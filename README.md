@@ -21,6 +21,10 @@ npm run dev
 
 Open `http://localhost:3000`. The default page is the public overview. `/demo` runs the single included fixture and uses a clearly labelled UI-only simulation unless a matching Kestra flow has been configured.
 
+## Deploy to Vercel
+
+The Vercel project root is the repository root; [`vercel.json`](vercel.json) points the Next.js build at `web/.next`. Create and link the project from this directory with `vercel project add lotline` and `vercel link --yes --project lotline`. Add `LOTLINE_DEMO_SIGNING_KEY` as a sensitive Vercel environment variable for Production and Preview, then deploy with `vercel --prod`. Keep the local `.env` out of uploads; `.vercelignore` excludes it.
+
 ## Configure Kestra (optional)
 
 Import [`kestra/flows/cold-chain-excursion-lot-review.yaml`](kestra/flows/cold-chain-excursion-lot-review.yaml) into a Kestra instance. See [`kestra/README.md`](kestra/README.md) for plugin requirements, flow setup, inputs, outputs, and safety boundaries. Set the matching connection values in `.env` only after the Kestra instance and API token exist. Configure the same webhook key in the Kestra secret backend and the local `.env`.
