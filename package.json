@@ -1,0 +1,21 @@
+{
+  "name": "lotline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Synthetic cold-chain event to lot-review workflow with a Kestra blueprint and operator demo.",
+  "workspaces": ["web"],
+  "scripts": {
+    "dev": "node --env-file=.env node_modules/next/dist/bin/next dev web",
+    "build": "node --env-file=.env node_modules/next/dist/bin/next build web",
+    "start": "node --env-file=.env node_modules/next/dist/bin/next start web",
+    "lint": "npm run lint --workspace web",
+    "typecheck": "npm run typecheck --workspace web",
+    "test": "node --experimental-strip-types --test web/lib/domain.test.ts web/lib/server/request-body.test.ts tests/blueprint.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "devDependencies": {
+    "yaml": "^2.8.1"
+  }
+}
