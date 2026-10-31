@@ -7,7 +7,7 @@ The reusable flow is [cold-chain-excursion-lot-review.yaml](flows/cold-chain-exc
 - Synthetic events only. The included web UI sends only `web/data/demo/excursion-01.json`.
 - Deterministic policy evaluation and shipment/container, location, and observed-time candidate scope.
 - Missing evidence and sampling gaps remain explicit. No values are interpolated.
-- The default draft is a deterministic template. External AI is optional, disabled by default, limited to the exact included synthetic fixture, and citation-validated.
+- The default draft is a deterministic template. External AI is optional, disabled by default, limited to the complete included synthetic fixture payload by SHA-256 fingerprint, and citation-validated.
 - Kestra pauses for a structured review choice and rationale. No downstream inventory, QMS, WMS, ERP, release, quarantine, rejection, recall, or disposal action is called.
 
 ## Prerequisites
@@ -21,7 +21,7 @@ The reusable flow is [cold-chain-excursion-lot-review.yaml](flows/cold-chain-exc
 
 1. Import the YAML into namespace `lotline.demo` and store the webhook key in Kestra Secrets.
 2. For a manual run, provide the fixture as `event_json` or `event_file`; do not provide both.
-3. For a webhook run, POST the canonical synthetic JSON body to the trigger URL. Set `aiMode` to `external_synthetic` only when deliberately testing that optional path with the named fixture.
+3. For a webhook run, POST the canonical synthetic JSON body to the trigger URL. Set `aiMode` to `external_synthetic` only when deliberately testing that optional path with the included fixture. The flow verifies the full event payload against its fixture fingerprint; changing any fixture field disables external drafting.
 4. Inspect `evaluate_event` and confirm the execution pauses at `await_human_review`.
 5. Resume with one allowed `decision` and a `rationale`; read final output `review_result`.
 

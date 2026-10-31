@@ -141,6 +141,8 @@ textarea:focus-visible {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
   .reveal-target[data-reveal="pending"] { opacity: 1; transform: none; }
+  .hero-copy { opacity: 1 !important; transform: none !important; }
+  .hero-scroll-milestone { display: none; }
   .hero-stage { height: auto; min-height: 100dvh; }
   .hero-sticky { position: relative; height: 100dvh; }
 }

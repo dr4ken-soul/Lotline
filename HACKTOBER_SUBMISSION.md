@@ -57,7 +57,7 @@
 ## Lotline safety boundary
 
 - V1 is a synthetic-data prototype; no real operational pharma, patient, product, sensor, lot, staff, facility, or customer data belongs in the public demo or committed fixtures.
-- External AI processing is off by default and may be enabled only for the synthetic fixture. AI drafts source-linked text only; it does not detect excursions, scope candidate lots, or choose a disposition.
+- External AI processing is off by default and may be enabled only when the complete event matches the included synthetic fixture fingerprint. AI drafts source-linked text only; it does not detect excursions, scope candidate lots, or choose a disposition.
 - Deterministic rules identify candidate lots from supplied policy and records. An authorised human makes any real disposition decision.
 - No automatic lot release or downstream inventory/QMS action; no GxP, 21 CFR Part 11, EU GMP Annex 11, validation, or compliance claim for the prototype.
 

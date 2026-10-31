@@ -37,6 +37,7 @@ tasks:
       INPUT_JSON: "{{ inputs.event_json | toJson }}"
     script: |
       import json
+      import hashlib
       import math
       import os
       from datetime import datetime
@@ -80,6 +81,13 @@ tasks:
           raise ValueError("The event must be valid JSON.") from exc
       if not isinstance(event, dict):
           raise ValueError("Provide one canonical event through the webhook, event_json, or event_file input.")
+      fixture_candidate = dict(event)
+      fixture_candidate.pop("aiMode", None)
+      fixture_fingerprint = hashlib.sha256(json.dumps(fixture_candidate, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
+      synthetic_fixture_verified = (
+          event.get("syntheticFixtureId") == "lotline-cold-chain-fixture-v1"
+          and fixture_fingerprint == "57143c761da4a72a688c4e627d9a81b062b5ac15cff8a671dc1023aef028833d"
+      )
       if event.get("schemaVersion") != "1.0":
           raise ValueError("Unsupported schemaVersion. This flow accepts 1.0.")
       if event.get("sourceAdapter") not in ("webhook", "file"):
@@ -236,7 +244,8 @@ tasks:
       peak_text = f", with an observed policy-applicable peak of {peak:.1f}°C." if peak is not None else ". No policy-applicable reading was available for a peak comparison."
       template = f"{event_id} records {interval_text}{peak_text} The supplied shipment, location, and time records identify {lot_text} as candidate lots. {calibration_text} This source-linked template is for human review and does not select a disposition."
       result = {
-          "syntheticFixtureId": event.get("syntheticFixtureId", ""),
+          "syntheticFixtureId": "lotline-cold-chain-fixture-v1" if synthetic_fixture_verified else "",
+          "syntheticFixtureVerified": synthetic_fixture_verified,
           "eventId": event_id,
           "state": state,
           "assessment": "EXCURSION_OBSERVED" if excursions else "POLICY_COVERAGE_INCOMPLETE" if any(not item["policyApplicable"] for item in readings) else "NO_EXCURSION_OBSERVED",
@@ -256,7 +265,7 @@ tasks:
   - id: draft_mode
     type: io.kestra.plugin.core.flow.If
     description: Use the deterministic template by default. Only an explicitly requested Lotline synthetic fixture may reach the external model.
-    condition: "{{ outputs.evaluate_event.values.syntheticFixtureId == 'lotline-cold-chain-fixture-v1' and ((trigger.body is defined and trigger.body.aiMode == 'external_synthetic') or (trigger.body is not defined and inputs.ai_mode == 'external_synthetic')) }}"
+    condition: "{{ outputs.evaluate_event.values.syntheticFixtureVerified == true and ((trigger.body is defined and trigger.body.aiMode == 'external_synthetic') or (trigger.body is not defined and inputs.ai_mode == 'external_synthetic')) }}"
     then:
       - id: external_draft
         type: io.kestra.plugin.openai.ChatCompletion
@@ -290,7 +299,13 @@ tasks:
               model = json.loads(os.environ.get("MODEL_TEXT", ""))
               candidate_text = model.get("text")
               candidate_citations = model.get("citations")
-              if isinstance(candidate_text, str) and candidate_text.strip() and isinstance(candidate_citations, list) and all(item in evaluation["evidenceIds"] for item in candidate_citations):
+              citations_are_valid = (
+                  isinstance(candidate_citations, list)
+                  and bool(candidate_citations)
+                  and all(isinstance(item, str) and item.strip() and item in evaluation["evidenceIds"] for item in candidate_citations)
+                  and len(set(candidate_citations)) == len(candidate_citations)
+              )
+              if isinstance(candidate_text, str) and candidate_text.strip() and citations_are_valid:
                   text = candidate_text.strip()
                   citations = candidate_citations
                   mode = "external_synthetic"
@@ -393,7 +408,7 @@ extend:
     1. The authenticated Webhook accepts canonical JSON. A manual execution can instead use `event_json` or `event_file`; all adapters enter the same evaluator.
     2. `evaluate_event` validates schema 1.0 and timestamps, converts Fahrenheit to Celsius without replacing source values, applies the supplied policy, preserves duplicate/out-of-order warnings, records large gaps, and never interpolates across them.
     3. Candidate lots are matched by shipment or container, location, and overlap with the observed event window. Every supplied lot receives a candidate or exclusion reason.
-    4. `draft_mode` uses a deterministic template by default. The external OpenAI path is allowed only for the Lotline synthetic fixture when explicitly requested. A Python validator rejects unknown citation IDs; malformed output or a provider error returns a labelled template fallback.
+    4. `draft_mode` uses a deterministic template by default. The external OpenAI path is allowed only when the complete event matches the fingerprint of the included Lotline synthetic fixture and external mode is explicitly requested. A Python validator requires non-empty, unique, known citation IDs; malformed output or a provider error returns a labelled template fallback.
     5. `await_human_review` pauses the execution for `decision` and `rationale`. `record_review_result` stores those values in the final outputs; it performs no downstream action.
 
     ## What you get
@@ -432,7 +447,7 @@ extend:
 
     - `event_json` (`JSON`, optional): canonical event object for manual execution; schema version must be `1.0`.
     - `event_file` (`FILE`, optional): canonical JSON file for manual execution. Use one event source only.
-    - `ai_mode` (`SELECT`, default `template`): `template` or `external_synthetic`. External mode runs only when the event's `syntheticFixtureId` exactly matches the included demo fixture.
+    - `ai_mode` (`SELECT`, default `template`): `template` or `external_synthetic`. External mode runs only when the complete event exactly matches the included demo fixture's SHA-256 fingerprint; a caller-supplied fixture ID alone is insufficient.
     - Webhook body: canonical JSON; may include `aiMode: external_synthetic` for the built-in synthetic fixture only.
 
     ## Outputs

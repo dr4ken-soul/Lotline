@@ -24,6 +24,8 @@ export function PublicPage() {
   const [activeChapter, setActiveChapter] = useState(0);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end end"] });
+  const heroCopyOpacity = useTransform(scrollYProgress, [0, 0.28, 0.38, 0.43], [1, 1, 0, 0]);
+  const heroCopyY = useTransform(scrollYProgress, [0.28, 0.38], [0, -24]);
   const milestoneTwoOpacity = useTransform(scrollYProgress, [0.4, 0.47, 0.6, 0.68], [0, 1, 1, 0]);
   const milestoneTwoY = useTransform(scrollYProgress, [0.4, 0.47, 0.6, 0.68], [16, 0, 0, -10]);
   const milestoneThreeOpacity = useTransform(scrollYProgress, [0.7, 0.77, 0.9, 0.96], [0, 1, 1, 1]);
@@ -44,20 +46,48 @@ export function PublicPage() {
           <div className="hero-placeholder" aria-hidden="true" />
           <div className="hero-tint" aria-hidden="true" />
           <div className="absolute inset-x-0 bottom-[8dvh] z-10 mx-auto grid w-full max-w-[90rem] grid-cols-1 items-end gap-8 px-4 sm:px-6 md:px-8 lg:grid-cols-12 lg:px-12 xl:px-16">
-            <motion.div className="flex max-w-[64rem] flex-col items-start lg:col-span-8 xl:col-span-7" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}>
-              <span className="inline-flex items-center gap-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--text-primary)]"><i className="size-1.5 rounded-full bg-[var(--accent)]" aria-hidden="true" />COLD-CHAIN SIGNAL / LOT REVIEW</span>
-              <motion.h1 id="hero-title" className="display-face mt-5 max-w-[11ch] text-[clamp(3.4rem,8.4vw,8.8rem)] font-normal leading-[0.86] tracking-[-0.055em] text-balance" initial={reduceMotion ? false : { opacity: 0, y: 24, filter: "blur(6px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.78, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>Turn excursions into lot decisions.</motion.h1>
-              <motion.p className="mt-5 max-w-[56ch] text-base leading-[1.6] text-[var(--text-primary)]/85 text-pretty md:mt-6 md:text-lg" initial={reduceMotion ? false : { opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.58, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}>Lotline turns temperature events into a clear, evidence-linked review path—while an authorised person keeps the final call.</motion.p>
-              <motion.div className="mt-7 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 md:mt-8" initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.58, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}>
-                <Link className="primary-button" href="/demo?fixture=excursion-01">Run sample event <span aria-hidden="true">↗</span></Link>
-                <a className="secondary-button" href="#workflow">See the workflow <span aria-hidden="true">↓</span></a>
+            <motion.div
+              className="hero-copy lg:col-span-8 xl:col-span-7"
+              style={reduceMotion ? undefined : { opacity: heroCopyOpacity, y: heroCopyY }}
+            >
+              <motion.div
+                className="flex max-w-[64rem] flex-col items-start"
+                initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <span className="inline-flex items-center gap-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-[var(--text-primary)]">
+                  <i className="size-1.5 rounded-full bg-[var(--accent)]" aria-hidden="true" />COLD-CHAIN SIGNAL / LOT REVIEW
+                </span>
+                <motion.h1
+                  id="hero-title"
+                  className="display-face mt-5 max-w-[11ch] text-[clamp(3.4rem,8.4vw,8.8rem)] font-normal leading-[0.86] tracking-[-0.055em] text-balance"
+                  initial={reduceMotion ? false : { opacity: 0, y: 24, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.78, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                >Turn excursions into lot decisions.</motion.h1>
+                <motion.p
+                  className="mt-5 max-w-[56ch] text-base leading-[1.6] text-[var(--text-primary)]/85 text-pretty md:mt-6 md:text-lg"
+                  initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.58, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                >Lotline turns temperature events into a clear, evidence-linked review path, while an authorised person keeps the final call.</motion.p>
+                <motion.div
+                  className="mt-7 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4 md:mt-8"
+                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.58, delay: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <Link className="primary-button" href="/demo?fixture=excursion-01">Run sample event <span aria-hidden="true">↗</span></Link>
+                  <a className="secondary-button" href="#workflow">See the workflow <span aria-hidden="true">↓</span></a>
+                </motion.div>
               </motion.div>
             </motion.div>
           </div>
-          <motion.div aria-hidden="true" className="absolute right-4 top-[25dvh] z-10 hidden max-w-[18rem] md:block lg:right-[10vw]" style={reduceMotion ? undefined : { opacity: milestoneTwoOpacity, y: milestoneTwoY }}>
+          <motion.div aria-hidden="true" className="hero-scroll-milestone absolute right-4 top-[25dvh] z-10 hidden max-w-[18rem] md:block lg:right-[10vw]" style={reduceMotion ? undefined : { opacity: milestoneTwoOpacity, y: milestoneTwoY }}>
             <p className="section-eyebrow">Exposure window</p><h2 className="display-face mt-3 text-3xl leading-[0.98] tracking-[-0.035em] md:text-4xl">Readings become a bounded event.</h2><p className="mt-3 max-w-[32ch] text-sm leading-6 text-[var(--text-primary)]/80">The configured range and observed timestamps stay visible.</p>
           </motion.div>
-          <motion.div className="absolute bottom-[12dvh] left-4 z-10 hidden max-w-[42rem] md:left-8 md:block lg:left-[10vw]" style={reduceMotion ? undefined : { opacity: milestoneThreeOpacity, y: milestoneThreeY }}>
+          <motion.div aria-hidden="true" className="hero-scroll-milestone absolute bottom-[12dvh] left-4 z-10 hidden max-w-[42rem] md:left-8 md:block lg:left-[10vw]" style={reduceMotion ? undefined : { opacity: milestoneThreeOpacity, y: milestoneThreeY }}>
             <p className="section-eyebrow">Review, not release</p><h2 className="display-face mt-3 text-4xl leading-[0.92] tracking-[-0.045em] text-balance md:text-6xl">Evidence first. Human decision last.</h2>
           </motion.div>
           <div className="absolute bottom-5 right-4 z-10 hidden items-center gap-3 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-[var(--text-primary)]/75 md:flex md:bottom-8 md:right-8 lg:right-12">Scroll to trace the event <span className="h-px w-10 bg-[var(--accent)]" /></div>
